@@ -187,6 +187,34 @@
         return args;
     };
 
+    function getSimpleMap(originalMap, property) {
+        return {
+            key: originalMap[property], transform: function (value, objfrom, objTo) {
+                objTo.set(originalMap[property], value);
+                return objTo.getArgumentObject(originalMap[property]);
+            }
+        }
+    }
+
+    function getComplexMap(originalMap, property) {
+        return {
+            key: originalMap[property].key, transform: function(value, objFrom, objTo) {
+                objTo.set(originalMap[property].key, originalMap[property].transform(value, objFrom, objTo));
+                return objTo.getArgumentObject(originalMap[property].key);
+            }
+        }
+    }
+
+    Contract.createMap = function (originalMap) {
+        var newInMap = {};
+        for (var prop in originalMap) {
+            (function (property) {
+                newInMap[property] = _.isString(originalMap[property]) ? getSimpleMap(originalMap, property) : getComplexMap(originalMap, property);
+            })(prop);
+        }
+        return newInMap;
+    };
+
 
     exports.Argument = Argument;
     exports.Arguments = Arguments;

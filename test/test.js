@@ -1,7 +1,7 @@
 /**
  * Created by jean-sebastiencote on 11/1/14.
  */
-    
+
 
 var Arguments = require('../index').Arguments;
 var Argument = require('../index').Argument;
@@ -145,6 +145,38 @@ module.exports = {
         test.ok(args.in.get("andAnother").name == "test");
 
         test.ok(args.out.get("somethingElse") === undefined, "the value of out argument should not be defined yet");
+
+        test.done();
+    },
+    testValidMapWillProduceFullMap: function (test) {
+
+        var map = TaskContract.createMap({"name": "firstName"});
+
+        test.ok(map.name.key == "firstName");
+        test.ok(map.name.transform instanceof Function);
+        var coll = new TaskContract([{name: "firstName", direction: Argument.Direction.in}]).createArguments();
+        var args = map.name.transform("bob", null, coll.in);
+        test.ok(args.name == "firstName");
+        test.ok(args.value == "bob");
+
+        test.done();
+    },
+    testMapWithFunctionWillProduceFullMap: function (test) {
+
+        var map = TaskContract.createMap({
+            "name": {
+                key: "firstName", transform: function () {
+                    return "bob from function"
+                }
+            }
+        });
+
+        test.ok(map.name.key == "firstName");
+        test.ok(map.name.transform instanceof Function);
+        var coll = new TaskContract([{name: "firstName", direction: Argument.Direction.in}]).createArguments();
+        var args = map.name.transform("bob", null, coll.in);
+        test.ok(args.name == "firstName");
+        test.ok(args.value == "bob from function");
 
         test.done();
     }
